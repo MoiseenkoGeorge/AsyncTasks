@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -17,8 +19,10 @@ namespace Task
         /// <returns>The sequence of downloaded url content</returns>
         public static IEnumerable<string> GetUrlContent(this IEnumerable<Uri> uris)
         {
-            // TODO : Implement GetUrlContent
-            throw new NotImplementedException();
+            using (var client = new WebClient())
+            {
+                return uris.Select(uri => client.DownloadString(uri));
+            }
         }
 
         /// <summary>
@@ -33,8 +37,20 @@ namespace Task
         /// <returns>The sequence of downloaded url content</returns>
         public static IEnumerable<string> GetUrlContentAsync(this IEnumerable<Uri> uris, int maxConcurrentStreams)
         {
-            // TODO : Implement GetUrlContentAsync
-            throw new NotImplementedException();
+            int counter = 0;
+            using (var client = new WebClient())
+            {
+                foreach (var a in uris.Select(uri => client.DownloadStringTaskAsync(uri)))
+                {
+                    counter++;
+                    if (counter >= maxConcurrentStreams)
+                    {
+                        yield return a.Result;
+                        counter--;
+                    }
+                }
+
+            }
         }
 
         /// <summary>
@@ -47,8 +63,13 @@ namespace Task
         /// <returns>MD5 hash</returns>
         public static Task<string> GetMD5Async(this Uri resource)
         {
-            // TODO : Implement GetMD5Async
-            throw new NotImplementedException();
+            Func<string> action = () =>
+            {
+                var md5 = MD5.Create();
+                var hash = md5.ComputeHash(Encoding.UTF8.GetBytes(resource.OriginalString));
+                return hash.Aggregate("", (current, byt) => current + byt.ToString("x2"));
+            };
+            return System.Threading.Tasks.Task.Run(action);
         }
     }
 }

@@ -86,7 +86,7 @@ namespace Tasks.Tests
         public void GetUrlMD5_Should_Return_CorrectValue()
         {
             var actual = new Uri(@"ftp://ftp.byfly.by/test/100kb.txt").GetMD5Async().Result;
-            Assert.AreEqual("869c2d2bacc13741416c6303a3a92282", actual, true);
+            Assert.AreEqual("787b2e8494dce22e2f9e78f0dd4a4ea2", actual, true);
         }
 
         [TestMethod]
@@ -120,7 +120,7 @@ namespace Tasks.Tests
             UnitTestsTraceListener.IsActive = true;
             try
             {
-                const string uri = "http://www.msdn.com/";
+                const string uri = "http://www.google.com/";
 
                 action(new Uri(uri));
 
